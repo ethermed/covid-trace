@@ -16,15 +16,22 @@ export interface IHospitalZone {
     people: IPerson[];
 }
 
-export class IVizElement {
-    selection: d3.Selection<any, IVizElement, any, any>;
-    group: d3.Selection<SVGGElement, IVizElement, any, any>;
+export class IVizElement<T> {
+    selection: d3.Selection<any, IVizElement<T>, any, any>;
+    group: d3.Selection<SVGGElement, IVizElement<T>, any, any>;
     width: number;
     height: number;
     radius: number;
     x: number;
     y: number;
-    constructor(public zone: IHospitalZone) {}
+    constructor(public data: T) {}
 }
 
 export type IVisualizationViewModel = IHospitalZone[];
+
+export interface IStatusDatum {
+    status: string;
+    count: number;
+    x1?: number;
+    x2?: number;
+}

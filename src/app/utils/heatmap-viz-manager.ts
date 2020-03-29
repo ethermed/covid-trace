@@ -1,10 +1,10 @@
 import { BaseVizManager } from './base-viz-manager';
 import * as d3 from 'd3';
-import { IHospitalZone, IVizElement } from '../models/data';
+import { IVizElement, IHospitalZone } from '../models/data';
 import { GetTranslateStr } from './translate';
 import * as simpleheat from 'simpleheat';
 
-export class VizManager extends BaseVizManager {
+export class HeatMapVizManager extends BaseVizManager {
 
     private xScale: d3.ScaleLinear<number, number>
     private yScale: d3.ScaleLinear<number, number>;
@@ -51,7 +51,7 @@ export class VizManager extends BaseVizManager {
             .attr('height', this.viewBox.height);
     }
 
-    drawDataPoints(data: IVizElement[]) {
+    drawDataPoints(data: IVizElement<IHospitalZone>[]) {
         const dataPtsGrp = this.containerRef
             .append('g')
             .attr('id', 'data-points');
@@ -63,7 +63,7 @@ export class VizManager extends BaseVizManager {
             .append('g')
             .attr('id', function (d) {
                 d.group = d3.select(this);
-                return d.zone.id + '-group';
+                return d.data.id + '-group';
             });
 
         const ctx = this;
@@ -73,9 +73,9 @@ export class VizManager extends BaseVizManager {
         });
     }
 
-    appendDataPoint(el: IVizElement) {
-        el.x = this.xScale(el.zone.xPos);
-        el.y = this.yScale(el.zone.yPos);
+    appendDataPoint(el: IVizElement<IHospitalZone>) {
+        el.x = this.xScale(el.data.xPos);
+        el.y = this.yScale(el.data.yPos);
 
         const selection = el.group.append('circle')
             .attr('r', 1)
@@ -87,7 +87,7 @@ export class VizManager extends BaseVizManager {
             .on('mouseover', function () {
                 el.group
                     .append('text')
-                    .text(el.zone.name + ': ' + el.zone.atRiskCount)
+                    .text(el.data.name + ': ' + el.data.atRiskCount)
                     .style('font-family', 'Roboto')
                     .style('font-weight', 'bold')
                     .style('font-size', '12px')
@@ -104,18 +104,24 @@ export class VizManager extends BaseVizManager {
         el.selection = selection;
     }
 
-    addHeatMap(data: IVizElement[]) {
+    /**
+     * All of this is effectively useless lol. Definitely should be replaced
+     * the heatmap package doesn't exacly do much except add a gradient.
+     * But time is money. $$$$$
+     * @param data 
+     */
+    addHeatMap(data: IVizElement<IHospitalZone>[]) {
         const canvas = this.heatMapRef.node() as HTMLCanvasElement;
         // const context = canvas.getContext('2d');
         this.heatMap = new simpleheat(canvas);
 
         const heatMapData = data.map(el => {
-            return [el.x, el.y, el.zone.atRiskCount];
+            return [el.x, el.y, el.data.atRiskCount];
         });
         this.heatMap.data(heatMapData);
 
         
-        const dataMax = d3.max(data, el => el.zone.atRiskCount);
+        const dataMax = d3.max(data, el => el.data.atRiskCount);
 
         this.heatMap.radius(27, 23);
         this.heatMap.max(dataMax);

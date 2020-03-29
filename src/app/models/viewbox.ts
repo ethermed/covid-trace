@@ -1,5 +1,4 @@
 
-
 export interface IViewBoxParams {
     width: number;
     height: number;

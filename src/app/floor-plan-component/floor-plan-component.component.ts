@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { VizManager } from '../utils/viz-manager';
 import { SampleLocationData } from '../utils/data-sample';
 import { IHospitalZone, IVizElement } from '../models/data';
+import { HeatMapVizManager } from '../utils/heatmap-viz-manager';
 
 @Component({
   selector: 'app-floor-plan-component',
@@ -10,7 +10,7 @@ import { IHospitalZone, IVizElement } from '../models/data';
 })
 export class FloorPlanComponentComponent implements OnInit {
   private data: IHospitalZone[];
-  private vizElements: IVizElement[];
+  private vizElements: IVizElement<IHospitalZone>[];
   constructor() { }
 
   ngOnInit() {
@@ -18,7 +18,7 @@ export class FloorPlanComponentComponent implements OnInit {
   }
 
   private buildViz() {
-    const vizManager = new VizManager('vizContainer');
+    const vizManager = new HeatMapVizManager('vizContainer');
     vizManager.addFloorPlan('/assets/floorplan.png');
     this.getDataSet();
     vizManager.drawDataPoints(this.vizElements);
@@ -28,7 +28,7 @@ export class FloorPlanComponentComponent implements OnInit {
   private getDataSet() {
     this.data = SampleLocationData;
     this.vizElements = SampleLocationData.map(z => {
-      const el: IVizElement = new IVizElement(z);
+      const el: IVizElement<IHospitalZone> = new IVizElement(z);
       return el;
     });
   }
