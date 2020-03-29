@@ -1,0 +1,10 @@
+<ng-container *ngIf="values?.length">
+    <div class="legend-container">
+        <div *ngFor="let item of values" class="legend-entry">
+            <span class="label label-value">{{ item.count }}</span>
+            <div>
+                <span class="label label-title">{{ item.status }}</span>
+            </div>
+        </div>
+    </div>
+</ng-container>

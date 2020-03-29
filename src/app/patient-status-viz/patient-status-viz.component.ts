@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewChildren, QueryList } from '@angular/core';
 import { BarChartVizManager } from '../utils/bar-chart-viz-manager';
 import { IVizElement, IStatusDatum } from '../models/data';
 import { SampleAtRiskData } from '../utils/data-sample';
+import { BarChartLegendComponent } from '../bar-chart-legend/bar-chart-legend.component';
 
 @Component({
   selector: 'app-patient-status-viz',
@@ -13,6 +14,9 @@ export class PatientStatusVizComponent implements OnInit {
   data: IStatusDatum[];
   vizElements: IVizElement<IStatusDatum>[]
 
+  @ViewChildren(BarChartLegendComponent)
+  legendComponents: QueryList<BarChartLegendComponent>;
+
   constructor() { }
 
   ngOnInit() {
@@ -21,6 +25,11 @@ export class PatientStatusVizComponent implements OnInit {
     vizManager.buildScales(this.vizElements);
     vizManager.drawBackground();
     vizManager.drawDataValues();
+    
+  }
+
+  ngAfterViewInit() {
+    this.updateLegend();
   }
 
   getDataSet() {
@@ -53,6 +62,16 @@ export class PatientStatusVizComponent implements OnInit {
         curr.x2 = curr.x1 + curr.count;
       }
     }
+  }
+
+  updateLegend() {
+    // this.legendComponents.changes.subscribe(
+    //   (legend: QueryList<BarChartLegendComponent>) => {
+    //     console.log('legend component ', legend);
+    //     legend.first.config = this.data;
+    //   }
+    // );
+    this.legendComponents.first.config = this.data;
   }
 
 }

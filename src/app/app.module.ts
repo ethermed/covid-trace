@@ -5,12 +5,14 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { FloorPlanComponentComponent } from './floor-plan-component/floor-plan-component.component';
 import { PatientStatusVizComponent } from './patient-status-viz/patient-status-viz.component';
+import { BarChartLegendComponent } from './bar-chart-legend/bar-chart-legend.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     FloorPlanComponentComponent,
-    PatientStatusVizComponent
+    PatientStatusVizComponent,
+    BarChartLegendComponent
   ],
   imports: [
     BrowserModule,

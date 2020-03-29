@@ -63,7 +63,7 @@ export class BarChartVizManager extends BaseVizManager {
             .attr('stroke', '#223248')
             .attr('stroke-width', '.3')
             .attr('opacity', '.95')
-            .attr('height', this.viewBox.height + 'px')
+            .attr('height', 20 + 'px')
             .attr('width', this.viewBox.width + 'px')
             .style('fill', '#121e2f');
     }
@@ -100,7 +100,7 @@ export class BarChartVizManager extends BaseVizManager {
             .attr('stroke', '#223248')
             .attr('stroke-width', '.6')
             .attr('opacity', '.95')
-            .attr('height', this.viewBox.height + 'px')
+            .attr('height', 20 + 'px')
             .attr('width', this.xScale(el.data.x2) + 'px')
             .style('fill', this.getStatusColor(el.data.status));
     }
@@ -108,5 +108,42 @@ export class BarChartVizManager extends BaseVizManager {
     getStatusColor(status: string) {
         return this.colorKeyMap[status.toLowerCase()];
     }
+
+    // addLegend() {
+    //     const parentGroup = this.containerRef
+    //         .append('g')
+    //         .attr('id', 'values-legend-group');
+
+    //     const update = parentGroup
+    //         .selectAll('legend-values')
+    //         .data(this.data);
+
+    //     const textGroups = update
+    //         .enter()
+    //         .append('g')
+    //         .attr('id', function (el) {
+    //             el.group = d3.select(this);
+    //             return el.data.status + '-group';
+    //         });
+    //     const ctx = this;
+    //     textGroups.each(function (el) {
+    //         ctx.addLegendText(el);
+    //     });
+    // }
+
+    // addLegendText(el: IVizElement<IStatusDatum>) {
+    //     cont el.group
+    //         .append('text')
+    //         .text(el.data.count);
+    //         .attr('y', 0)
+    //         .attr('x', this.xScale(el.data.x1))
+    //         .attr('rx', '2')
+    //         .attr('stroke', '#223248')
+    //         .attr('stroke-width', '.6')
+    //         .attr('opacity', '.95')
+    //         .attr('height', 20 + 'px')
+    //         .attr('width', this.xScale(el.data.x2) + 'px')
+    //         .style('fill', this.getStatusColor(el.data.status));
+    // }
 
 }
