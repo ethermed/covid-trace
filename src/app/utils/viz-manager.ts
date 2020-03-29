@@ -1,0 +1,161 @@
+import { BaseVizManager } from './base-viz-manager';
+import * as d3 from 'd3';
+import { IHospitalZone, IVizElement } from '../models/data';
+import { GetTranslateStr } from './translate';
+import * as simpleheat from 'simpleheat';
+
+export class VizManager extends BaseVizManager {
+
+    private xScale: d3.ScaleLinear<number, number>
+    private yScale: d3.ScaleLinear<number, number>;
+    private heatMapRef: d3.Selection<d3.BaseType, any, HTMLElement, any>;
+    private heatMap;
+
+    constructor(containerId: string) {
+        super();
+        this.containerUid = containerId;
+        this.getSvgContainer();
+        this.setupHeatMapCanvas();
+        this.buildScales();
+    }
+
+    private setupHeatMapCanvas() {
+        this.heatMapRef = this.htmlContainer
+        .append('canvas')
+        .attr('id', 'heatmap')
+        .attr('width', this.viewBox.width)
+        .attr('height', this.viewBox.height)
+        .style('position', 'relative')
+        .style('top', (-this.viewBox.height) + 'px');
+    }
+
+    private buildScales() {
+        this.xScale = d3.scaleLinear()
+            .domain([0, 100])
+            .range([100, this.viewBox.width]);
+
+        this.yScale = d3.scaleLinear()
+            .domain([0, 100])
+            .range([this.viewBox.height - 50, 110]);
+    }
+
+    addFloorPlan(url: string) {
+        const imgGrp = this.containerRef
+            .append('g')
+            .attr('id', 'img-layer');
+
+        imgGrp
+            .append('image')
+            .attr("xlink:href", url)
+            .attr('width', this.viewBox.width)
+            .attr('height', this.viewBox.height);
+    }
+
+    drawDataPoints(data: IVizElement[]) {
+        const dataPtsGrp = this.containerRef
+            .append('g')
+            .attr('id', 'data-points');
+
+        const groups = dataPtsGrp
+            .selectAll('data-points')
+            .data(data)
+            .enter()
+            .append('g')
+            .attr('id', function (d) {
+                d.group = d3.select(this);
+                return d.zone.id + '-group';
+            });
+
+        const ctx = this;
+
+        groups.each(function (d) {
+            ctx.appendDataPoint(d);
+        });
+    }
+
+    appendDataPoint(el: IVizElement) {
+        el.x = this.xScale(el.zone.xPos);
+        el.y = this.yScale(el.zone.yPos);
+
+        const selection = el.group.append('circle')
+            .attr('r', 1)
+            .attr('cx', el.x)
+            .attr('cy', el.y)
+            //.attr('fill', 'yellow');
+
+        selection
+            .on('mouseover', function () {
+                el.group
+                    .append('text')
+                    .text(el.zone.name + ': ' + el.zone.atRiskCount)
+                    .style('font-family', 'Roboto')
+                    .style('font-weight', 'bold')
+                    .style('font-size', '12px')
+                    .style('transform', GetTranslateStr(el.x + 5, el.y - 6));
+
+            })
+            .on('mouseout', function () {
+                el.group
+                    .select('text')
+                    .remove();
+            })
+
+
+        el.selection = selection;
+    }
+
+    addHeatMap(data: IVizElement[]) {
+        const canvas = this.heatMapRef.node() as HTMLCanvasElement;
+        // const context = canvas.getContext('2d');
+        this.heatMap = new simpleheat(canvas);
+
+        const heatMapData = data.map(el => {
+            return [el.x, el.y, el.zone.atRiskCount];
+        });
+        this.heatMap.data(heatMapData);
+
+        
+        const dataMax = d3.max(data, el => el.zone.atRiskCount);
+
+        this.heatMap.radius(27, 23);
+        this.heatMap.max(dataMax);
+
+        const testGradient = {
+            0.4: 'green',
+            //0.5: '#66bb7a',
+            // 0.3: 'blue',
+            //0.4:  '#ADD8E8', //'#01B7C7',
+            //0.6: '#AFD8E9',
+            //0.6: '#F8F9C6',//'lime',
+            // 0.8: 'yellow',
+            // 0.7: '#F4F8AB',
+            0.5: '#ebf264',
+            0.6: '#FED280',
+            0.8: '#FF362C',
+            1.0: 'red'
+        }
+
+        const defaultGradient = {
+            0.4: 'blue',
+            0.6: 'cyan',
+            0.7: 'lime',
+            0.8: 'yellow',
+            1.0: 'red'
+        };
+
+        const total = d3.schemeRdYlGn.length;
+        const gradient = { };
+        d3.schemeRdYlGn.forEach((color, index) => { 
+            const key = (index/total).toFixed(1);
+            const colorIndex = Math.min(Math.ceil((color.length / 2) + 2), color.length - 1);
+            gradient[key] = color[colorIndex];
+        });
+
+        console.log(testGradient);
+        
+        this.heatMap.gradient(testGradient);
+        this.heatMap.draw();
+    }
+
+
+}
